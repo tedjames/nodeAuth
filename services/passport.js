@@ -5,15 +5,21 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const LocalStrategy = require('passport-local');
 
-// Create local strategy
-const localOptions = { usernameField: 'email' }
+// Local strategy for obtaining a token:
+const localOptions = { usernameField: 'email' } // Strategy options
+
+// New local strategy using passport-local.LocalStrategy()
 const localLogin = new LocalStrategy(localOptions, function(email, password, done) {
-  // Verify email and password, if verified call done with the user
-  // otherwise, call done with false
-  User.findOne({ email: email }, function(err, user) {
-    if (err) { return done(err); }
-    if (!user) { return done(null, false); }
-    // compare passwords
+  User.findOne({ email: email }, function(err, user) { // Find a user record with the provided email
+    if (err) { return done(err); } // error occured while trying to find that user
+    if (!user) { return done(null, false); } // user does not exist
+
+    // since the user exists, compare the passwords
+    user.comparePassword(password, function(err, isMatch) {
+      if (err) { return done(err); } // error occured while trying to compare passwords
+      if (!isMatch) { return done(null, false); } // not a match
+      return done(null, user); // it's a match!
+    })
   })
 });
 
@@ -45,3 +51,4 @@ const jwtLogin = new JwtStrategy(jwtOptions, function(payload, done) {
 
 // Tell passport to use the strategy
 passport.use(jwtLogin);
+passport.use(localLogin);
