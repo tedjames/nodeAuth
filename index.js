@@ -4,6 +4,7 @@ const bodyParser = require("body-parser"); // parses request to json
 const morgan = require("morgan"); // logs incoming request for debugging
 const router = require("./router");
 const mongoose = require("mongoose");
+const cors = require('cors');
 
 // DB Setup
 mongoose.connect("mongodb://localhost:auth/auth")
@@ -12,6 +13,7 @@ mongoose.connect("mongodb://localhost:auth/auth")
 const app = express();
 // app.use allows you to hook in middleware to every request
 app.use(morgan("combined"));
+app.use(cors());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
